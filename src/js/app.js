@@ -30,9 +30,7 @@ const $cart = createStore([])
     let state = item.filter((item) => item.id !== id);
     return state;
   })
-  .on(updateCart, (item, quantity) => {
-    console.log(quantity);
-  });
+  .on(updateCart, (item, quantity) => {});
 
 $cart.watch((state) => {
   console.log("state", state);
