@@ -2,6 +2,9 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-p {
-  color: red;
+/* p { */
+/*   color: red; */
+/* } */
+.bg-close {
+  background-image: url("https://d19pbi8vkdue6m.cloudfront.net/products/x-mark-thin.svg");
 }

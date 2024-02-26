@@ -1,26 +1,89 @@
-import Alpine from "../../node_modules/alpinejs/dist/module.esm.js";
-window.Alpine = Alpine;
-Alpine.start();
 import {
   createStore,
-  createEffect,
+  createEvent,
+  combine,
   sample,
-} from "../../node_modules/effector/effector.mjs";
-console.log("Console log message");
+} from "https://cdn.jsdelivr.net/npm/effector/effector.mjs";
+import { products } from "./products.mjs";
 
-const $counter = createStore(0);
-const increaseByOne = createEffect();
+const addToCart = createEvent();
+const removeFromCart = createEvent();
+const updatePurchaseQuantity = createEvent();
 
-setInterval(() => {
-  increaseByOne();
-}, 2000);
+const $cart = createStore([]);
 
 sample({
-  clock: increaseByOne,
-  source: $counter,
-  fn: (counter) => {
-    console.log("Counter", counter);
-    return counter + 1;
+  clock: addToCart,
+  source: $cart,
+  fn: (items, params) => {
+    const item = products.find((item) => item.id == params.id);
+    item.quantity = params.quantity;
+    item.sum = item.quantity * item.price;
+    if (!items.find((i) => i.id == item.id)) {
+      return [...items, item];
+    }
+    alert("Product has already been added to cart !");
   },
-  target: $counter,
+  target: $cart,
 });
+
+sample({
+  clock: removeFromCart,
+  source: $cart,
+  fn: (items, id) => {
+    items = items.filter((item) => item.id !== id);
+    return items;
+  },
+  target: $cart,
+});
+
+sample({
+  clock: updatePurchaseQuantity,
+  source: $cart,
+  fn: (items, params) => {
+    items.map((item) => {
+      if (item.id == params.id) {
+        item.quantity = params.quantity;
+        item.sum = params.quantity * item.price;
+      }
+    });
+    console.log("updatePurchaseQuantity", items);
+    return items;
+  },
+  target: $cart,
+});
+
+const $counterSumAndQuantity = sample({
+  clock: $cart,
+  sourse: $cart,
+  fn: (items) => {
+    const totalSumItems = items.reduce(function (sum, current) {
+      return sum + current.sum;
+    }, 0);
+    const totalNumberItems = items.reduce(function (sum, current) {
+      return sum + parseInt(current.quantity);
+    }, 0);
+    return { totalSum: totalSumItems, totalQuantity: totalNumberItems };
+  },
+});
+
+const stores = {
+  $cart,
+  $counterSumAndQuantity,
+};
+
+$cart.watch((state) => {
+  console.log("state", state);
+});
+
+$counterSumAndQuantity.watch((state) => {
+  console.log("state", state);
+});
+
+export const store = combine(stores);
+
+export const actions = {
+  addToCart,
+  removeFromCart,
+  updatePurchaseQuantity,
+};

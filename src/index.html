@@ -1,13 +1,106 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel='stylesheet' href='src/css/styles.css'
+    <link rel='stylesheet' href='src/css/output.css'
   </head>
-
-  <body x-data>
-    <h1>My First Heading</h1>
-    <p>My first paragraph.</p>
-    <p x-text="'Alpinejs is working'"></p>
+  <body x-data="{ openShoppingCart: true }" class="bg-gray">
+    <div class="flex relative justify-evenly py-5 mb-16 bg-orange">
+      <div class="flex">
+        <h1 class="text-5xl font-black">BestMobileBY</h1>
+        <img src="../src/images/phone.svg" alt="phone" class="h-12">
+      </div>
+      <button @click="openShoppingCart = true" type="button" class="flex self-center gap-2">
+        <div
+          x-text="$store.counterSumAndQuantity.store.$counterSumAndQuantity.totalQuantity"
+          class="flex relative bottom-2 left-1 items-center justify-center w-8 h-8 rounded-full text-white font-black text-lg bg-green">
+        </div>
+        <img src="../src/images/shopping-cart.svg" alt="cart" class="h-10 self-end">
+      </button>
+    </div>
+    <div x-data="products" class="px-10 flex justify-center gap-x-20">
+      <template x-for="product in products">
+        <div class="w-1/4 max-w-[430px] bg-white border-orange border-4 rounded-xl py-5 px-4 flex flex-col justify-between gap-y-5">
+          <div class="mx-auto flex justify-center">
+            <img :src="product.image" alt="mobile" class="w-[300px] h-auto">
+          </div>
+          <div>
+            <p x-text="product.name" class="text-2xl font-black mb-5"></p>
+            <p x-text="product.description"></p>
+          </div>
+          <div class="flex flex-col lg:min-w-[261px]">
+            <div class="flex justify-center items-center gap-x-2 p-4 text-center mb-5 border-4 border-orange rounded-xl">
+              <p x-text="'Unit price: ' + product.price + ' $'" class="text-2xl"></p> 
+            </div>
+            <div x-data="{ numberOfItemsToCart: '1' }" class="flex gap-x-4 justify-between">
+              <select
+                x-model="numberOfItemsToCart"
+                class="h-auto min-w-[150px] w-auto p-4 cursor-pointer text-xl rounded-xl"
+                >
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+              <button
+                @click="$store.cart.actions.addToCart({ id:product.id, quantity: numberOfItemsToCart })"
+                type="button"
+                class="p-4 bg-green rounded-xl text-xl font-black">
+                Add To Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      </template> 
+    </div>
+    <div
+      x-show="openShoppingCart"
+      x-transition:enter.duration.1000ms
+      x-transition:leave.duration.1000ms
+      class="w-[800px] absolute right-64 top-24 bg-white border-orange border-4 rounded-xl py-5 px-4 flex flex-col justify-between gap-y-5">
+      <div class="flex justify-center text-3xl font-black gap-x-5">
+        <h2>Cart of goods</h2>
+        <img src="../src/images/shopping-cart.svg" alt="cart" class="h-10 self-end">
+        <button @click="openShoppingCart = false" class="relative left-40 bg-close self-center cursor-pointer w-5 h-5"></button>
+      </div>
+      <hr>
+      <div class="grid justify-between">
+        <template x-for="item in $store.cart.store.$cart">
+          <div class="flex pl-5 gap-x-20">
+            <img
+              :src="item.image"
+              alt="mobile"
+              class="w-[100px] h-auto">
+            <p x-text="item.name" class="text-sm font-black self-center text-center"></p>
+            <select
+              x-model="item.quantity"
+              class="h-14 self-center cursor-pointer min-w-[150px] w-auto p-4 text-xl rounded-xl"
+              @change="$store.cart.actions.updatePurchaseQuantity({ id: item.id, quantity: item.quantity })">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+            <button
+              @click="$store.cart.actions.removeFromCart(item.id)"
+              type="button"
+              class="min-w-14 h-14 self-center p-4 bg-red rounded-xl text-xl font-black">
+              <img src="../src/images/remove.png" alt="remove" class="h-7">
+            </button>
+            <p x-text="item.sum + ' $'" class="min-w-20 self-center text-lg font-black pr-5"></p>
+          </div>
+        </template>
+      </div>
+      <hr>
+      <h2 x-text="'TOTAL: ' + $store.counterSumAndQuantity.store.$counterSumAndQuantity.totalSum + ' $'" class="text-3xl font-black"></h2>
+    </div>
+    <h2
+      x-data="{ message: 'I ❤️ Alpine' }"
+      x-text="message"
+      class="mt-24 p-5 bg-yellow text-center text-base">
+    </h2>
     <script type="module" src="src/js/app.js"></script>
+    <script type="module" src="src/js/init.js"></script>
   </body>
 </html>
