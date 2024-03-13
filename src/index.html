@@ -3,7 +3,7 @@
   <head>
     <link rel='stylesheet' href='src/css/output.css'
   </head>
-  <body x-data="{ openShoppingCart: true }" class="bg-gray">
+  <body x-data="{ openShoppingCart: false }" class="bg-gray">
     <div class="flex relative justify-evenly py-5 mb-16 bg-orange">
       <div class="flex">
         <h1 class="text-5xl font-black">BestMobileBY</h1>
@@ -11,7 +11,7 @@
       </div>
       <button @click="openShoppingCart = true" type="button" class="flex self-center gap-2">
         <div
-          x-text="$store.cart.store.$calculateQuantity"
+          x-text="$store.cart.store.$totalQuantity"
           class="flex relative bottom-2 left-1 items-center justify-center w-8 h-8 rounded-full text-white font-black text-lg bg-green">
         </div>
         <img src="../src/images/shopping-cart.svg" alt="cart" class="h-10 self-end">
@@ -93,7 +93,7 @@
         </template>
       </div>
       <hr>
-      <h2 x-text="'TOTAL: ' + $store.cart.store.$calculateSum + ' $'" class="text-3xl font-black"></h2>
+      <h2 x-text="'TOTAL: ' + $store.cart.store.$totalSum + ' $'" class="text-3xl font-black"></h2>
     </div>
     <h2
       x-data="{ message: 'I ❤️ Alpine' }"

@@ -15,15 +15,11 @@ const $lineItems = createStore([]);
 sample({
   clock: addToCart,
   source: $lineItems,
-  filter: ($lineItems, { id }) =>
-    $lineItems.some((item) => item.id == id)
-      ? alert("Product has already been added to cart !")
-      : $lineItems,
+  filter: (lineItems, { id }) => lineItems.every((item) => item.id !== id),
   fn: (items, { id, quantity }) => {
     const item = products.find((item) => item.id == id);
-    item.quantity = parseInt(quantity);
-    item.sum = item.quantity * item.price;
-    return [...items, item];
+    const itemForCart = { ...item, quantity: parseInt(quantity) };
+    return [...items, itemForCart];
   },
   target: $lineItems,
 });
@@ -39,46 +35,42 @@ sample({
   clock: updatePurchaseQuantity,
   source: $lineItems,
   fn: (items, { id, quantity }) => {
-    const updateLineItems = [];
-    items.forEach((item) => {
+    return items.map((item) => {
       if (item.id == id) {
-        item.quantity = parseInt(quantity);
-        item.sum = quantity * item.price;
+        return { ...item, quantity: parseInt(quantity) };
       }
-      updateLineItems.push(item);
+      return item;
     });
-    return updateLineItems;
   },
   target: $lineItems,
 });
 
-const $calculateSum = sample({
+const $totalSum = sample({
   clock: $lineItems,
   sourse: $lineItems,
   fn: (items) => {
     const totalSumItems = items.reduce((sum, current) => {
-      return sum + current.sum;
+      return sum + current.price * current.quantity;
     }, 0);
     return totalSumItems;
   },
 });
 
-const $calculateQuantity = sample({
+const $totalQuantity = sample({
   clock: $lineItems,
   sourse: $lineItems,
   fn: (items) => {
-    let totalNumberItems = 0;
-    items.map((item) => {
-      totalNumberItems += item.quantity;
-    });
+    const totalNumberItems = items.reduce((sum, current) => {
+      return sum + current.quantity;
+    }, 0);
     return totalNumberItems;
   },
 });
 
 const stores = {
   $lineItems,
-  $calculateSum,
-  $calculateQuantity,
+  $totalSum,
+  $totalQuantity,
 };
 
 $lineItems.watch((state) => {
