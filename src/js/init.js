@@ -22,12 +22,4 @@ Alpine.store("cart", {
   },
 });
 
-Alpine.store("counterSumAndQuantity", {
-  init() {
-    store.watch((store) => {
-      this.store = store;
-    });
-  },
-});
-
 Alpine.start();

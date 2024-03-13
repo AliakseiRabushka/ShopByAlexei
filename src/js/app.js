@@ -10,74 +10,79 @@ const addToCart = createEvent();
 const removeFromCart = createEvent();
 const updatePurchaseQuantity = createEvent();
 
-const $cart = createStore([]);
+const $lineItems = createStore([]);
 
 sample({
   clock: addToCart,
-  source: $cart,
-  fn: (items, params) => {
-    const item = products.find((item) => item.id == params.id);
-    item.quantity = params.quantity;
+  source: $lineItems,
+  filter: ($lineItems, { id }) =>
+    $lineItems.some((item) => item.id == id)
+      ? alert("Product has already been added to cart !")
+      : $lineItems,
+  fn: (items, { id, quantity }) => {
+    const item = products.find((item) => item.id == id);
+    item.quantity = parseInt(quantity);
     item.sum = item.quantity * item.price;
-    if (!items.find((i) => i.id == item.id)) {
-      return [...items, item];
-    }
-    alert("Product has already been added to cart !");
+    return [...items, item];
   },
-  target: $cart,
+  target: $lineItems,
 });
 
 sample({
   clock: removeFromCart,
-  source: $cart,
-  fn: (items, id) => {
-    items = items.filter((item) => item.id !== id);
-    return items;
-  },
-  target: $cart,
+  source: $lineItems,
+  fn: (items, id) => items.filter((item) => item.id !== id),
+  target: $lineItems,
 });
 
 sample({
   clock: updatePurchaseQuantity,
-  source: $cart,
-  fn: (items, params) => {
-    items.map((item) => {
-      if (item.id == params.id) {
-        item.quantity = params.quantity;
-        item.sum = params.quantity * item.price;
+  source: $lineItems,
+  fn: (items, { id, quantity }) => {
+    const updateLineItems = [];
+    items.forEach((item) => {
+      if (item.id == id) {
+        item.quantity = parseInt(quantity);
+        item.sum = quantity * item.price;
       }
+      updateLineItems.push(item);
     });
-    console.log("updatePurchaseQuantity", items);
-    return items;
+    return updateLineItems;
   },
-  target: $cart,
+  target: $lineItems,
 });
 
-const $counterSumAndQuantity = sample({
-  clock: $cart,
-  sourse: $cart,
+const $calculateSum = sample({
+  clock: $lineItems,
+  sourse: $lineItems,
   fn: (items) => {
-    const totalSumItems = items.reduce(function (sum, current) {
+    const totalSumItems = items.reduce((sum, current) => {
       return sum + current.sum;
     }, 0);
-    const totalNumberItems = items.reduce(function (sum, current) {
-      return sum + parseInt(current.quantity);
-    }, 0);
-    return { totalSum: totalSumItems, totalQuantity: totalNumberItems };
+    return totalSumItems;
+  },
+});
+
+const $calculateQuantity = sample({
+  clock: $lineItems,
+  sourse: $lineItems,
+  fn: (items) => {
+    let totalNumberItems = 0;
+    items.map((item) => {
+      totalNumberItems += item.quantity;
+    });
+    return totalNumberItems;
   },
 });
 
 const stores = {
-  $cart,
-  $counterSumAndQuantity,
+  $lineItems,
+  $calculateSum,
+  $calculateQuantity,
 };
 
-$cart.watch((state) => {
-  console.log("state", state);
-});
-
-$counterSumAndQuantity.watch((state) => {
-  console.log("state", state);
+$lineItems.watch((state) => {
+  console.log("lineItems", state);
 });
 
 export const store = combine(stores);
