@@ -12,6 +12,10 @@ const updatePurchaseQuantity = createEvent();
 
 const $lineItems = createStore([]);
 
+const getSubTotal = (item) => {
+  return item.quantity * item.price;
+};
+
 sample({
   clock: addToCart,
   source: $lineItems,
@@ -83,4 +87,5 @@ export const actions = {
   addToCart,
   removeFromCart,
   updatePurchaseQuantity,
+  getSubTotal,
 };
