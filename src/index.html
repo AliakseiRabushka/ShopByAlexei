@@ -88,7 +88,7 @@
               class="min-w-14 h-14 self-center p-4 bg-red rounded-xl text-xl font-black">
               <img src="../src/images/remove.png" alt="remove" class="h-7">
             </button>
-            <p x-text="$store.cart.actions.getSubTotal(item) + ' $'" class="min-w-20 self-center text-lg font-black pr-5"></p>
+            <p x-text="$store.cart.getSubTotal(item) + ' $'" class="min-w-20 self-center text-lg font-black pr-5"></p>
           </div>
         </template>
       </div>

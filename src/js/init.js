@@ -20,6 +20,9 @@ Alpine.store("cart", {
       this.store = store;
     });
   },
+  getSubTotal(data) {
+    return data.quantity * data.price;
+  },
 });
 
 Alpine.start();
